@@ -3,10 +3,10 @@ import CustomNavbar from './CustomNavbar'
 
 const Base = ({children}) => {
   return (
-    <>
+    <div className='base'>
         <CustomNavbar />
         {children}
-    </>
+    </div>
   )
 }
 

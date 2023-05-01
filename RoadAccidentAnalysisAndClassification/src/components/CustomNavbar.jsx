@@ -70,7 +70,7 @@ export default function CustomNavbar() {
           <Typography
             as="a"
             href="#"
-            variant="h3"
+            variant="h2"
             className="mr-4 cursor-pointer py-1.5 font-medium nav--heading"
           >
             RoadWise

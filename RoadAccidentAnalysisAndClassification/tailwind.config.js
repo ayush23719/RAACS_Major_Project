@@ -6,6 +6,9 @@ module.exports = withMT({
     extend: {
       colors: {
         'limeShade': 'rgb(7,191,103)'
+      },
+      backgroundImage: {
+        'welcome-wallpaper': "url('/src/assets/wallpaper.jpg')"
       }
     },
     

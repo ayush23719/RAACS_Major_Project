@@ -7,17 +7,18 @@ import {
   IconButton,
   Card,
 } from "@material-tailwind/react";
- 
+import { Link } from "react-router-dom";
+
 export default function CustomNavbar() {
   const [openNav, setOpenNav] = React.useState(false);
- 
+
   React.useEffect(() => {
     window.addEventListener(
       "resize",
       () => window.innerWidth >= 960 && setOpenNav(false)
     );
   }, []);
- 
+
   const navList = (
     <ul className="mb-4 mt-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
       <Typography
@@ -58,19 +59,22 @@ export default function CustomNavbar() {
       </Typography>
     </ul>
   );
- 
+
   return (
     <>
-      <Navbar className="sticky inset-0 z-10 h-max max-w-full rounded-none py-2 px-4 lg:px-8 lg:py-4" color="transparent">
+      <Navbar
+        className="sticky inset-0 z-10 h-max max-w-full rounded-none py-2 px-4 lg:px-8 lg:py-4"
+        color="transparent"
+      >
         <div className="flex items-center justify-between text-blue-gray-900">
-          <Typography
-            as="a"
-            href="/welcome"
-            variant="h2"
-            className="mr-4 cursor-pointer py-1.5 font-medium nav--heading text-[#FFE5B4]"
-          >
-            RoadWise
-          </Typography>
+          <Link to="/welcome">
+            <Typography
+              variant="h2"
+              className="mr-4 cursor-pointer py-1.5 font-medium nav--heading text-[#FFE5B4] mx-6"
+            >
+              RoadWise
+            </Typography>
+          </Link>
           <div className="flex items-center gap-4">
             <div className="mr-4 hidden lg:block">{navList}</div>
             <IconButton
@@ -112,9 +116,7 @@ export default function CustomNavbar() {
             </IconButton>
           </div>
         </div>
-        <MobileNav open={openNav}>
-          {navList}
-        </MobileNav>
+        <MobileNav open={openNav}>{navList}</MobileNav>
       </Navbar>
     </>
   );

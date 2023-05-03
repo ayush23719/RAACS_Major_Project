@@ -1,13 +1,13 @@
-import React from 'react'
-import CustomNavbar from './CustomNavbar'
+import React from "react";
+import CustomNavbar from "./CustomNavbar";
 
-const Base = ({children}) => {
+const Base = ({ children }) => {
   return (
-    <div className='base'>
-        <CustomNavbar />
-        {children}
+    <div className="base">
+      <CustomNavbar />
+      {children}
     </div>
-  )
-}
+  );
+};
 
-export default Base
+export default Base;

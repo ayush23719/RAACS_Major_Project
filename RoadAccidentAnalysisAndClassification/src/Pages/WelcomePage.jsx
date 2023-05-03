@@ -7,8 +7,8 @@ const WelcomePage = () => {
   return (
     <Base>
       <div className=" h-[85vh] w-full welcome flex flex-col justify-end items-start p-8">
-        <div className="max-w-xl">
-          <Typography variant="h1" color="black" className="text-6xl mx-6">
+        <div className="max-w-2xl">
+          <Typography className="text-6xl mx-6 py-8">
             <TypeWriterEffect
               textStyle={{ fontFamily: "Poppins", color: "white" }}
               startDelay={100}
@@ -16,6 +16,9 @@ const WelcomePage = () => {
               text="Minimizing Risk, Maximizing Safety: RoadWise"
               typeSpeed={100}
             />
+          </Typography>
+          <Typography color="white" className="text-xl mx-6 text-lg">
+            Road Accident Analysis & Classification System
           </Typography>
         </div>
         <div>

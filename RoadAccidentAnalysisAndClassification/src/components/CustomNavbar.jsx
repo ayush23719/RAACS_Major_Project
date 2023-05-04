@@ -20,39 +20,23 @@ export default function CustomNavbar() {
   }, []);
 
   const navList = (
-    <ul className="mb-4 mt-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
-      <Typography
-        as="li"
-        variant="large"
-        className="p-1 font-normal text-[#FFE5B4] text-lg"
-      >
+    <ul className="mb-4 mt-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6 text-[white]">
+      <Typography as="li" variant="large" className="p-1 font-normal  text-lg">
         <a href="#" className="flex items-center">
           Pages
         </a>
       </Typography>
-      <Typography
-        as="li"
-        variant="large"
-        className="p-1 font-normal text-[#FFE5B4] text-lg"
-      >
+      <Typography as="li" variant="large" className="p-1 font-normal  text-lg">
         <a href="#" className="flex items-center">
           Account
         </a>
       </Typography>
-      <Typography
-        as="li"
-        variant="large"
-        className="p-1 font-normal text-[#FFE5B4] text-lg"
-      >
+      <Typography as="li" variant="large" className="p-1 font-normal  text-lg">
         <a href="#" className="flex items-center">
           Blocks
         </a>
       </Typography>
-      <Typography
-        as="li"
-        variant="large"
-        className="p-1 font-normal text-[#FFE5B4] text-lg"
-      >
+      <Typography as="li" variant="large" className="p-1 font-normal  text-lg">
         <a href="#" className="flex items-center">
           Docs
         </a>
@@ -70,7 +54,8 @@ export default function CustomNavbar() {
           <Link to="/welcome">
             <Typography
               variant="h2"
-              className="mr-4 cursor-pointer py-1.5 font-medium nav--heading text-[#FFE5B4] mx-6"
+              className="mr-4 cursor-pointer py-1.5 font-medium nav--heading  mx-6 text-[white]
+             "
             >
               RoadWise
             </Typography>

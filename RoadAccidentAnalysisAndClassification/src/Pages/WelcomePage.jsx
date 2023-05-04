@@ -10,7 +10,7 @@ const WelcomePage = () => {
         <div className="max-w-2xl">
           <Typography className="text-6xl mx-6 py-8">
             <TypeWriterEffect
-              textStyle={{ fontFamily: "Poppins", color: "white" }}
+              textStyle={{ fontFamily: "Rubik", color: "white" }}
               startDelay={100}
               cursorColor="black"
               text="Minimizing Risk, Maximizing Safety: RoadWise"

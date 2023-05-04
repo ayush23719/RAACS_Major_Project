@@ -1,20 +1,23 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Righteous&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Ubuntu&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Rubik&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
   /* font-family: "Inter", sans-serif; */
-  font-family: "Poppins", sans-serif;
+  font-family: "Rubik", sans-serif;
   padding: 0;
   margin: 0;
 }
 
 body {
-  background-image: url("/src/assets/wallpaper.jpg");
+  /* Let us add a gradient overlay to a background image  */
+  background-image: linear-gradient(
+      270deg,
+      rgba(36, 45, 61, 0) 0,
+      rgba(36, 45, 61, 0.6) 100%
+    ),
+    url("./assets/wallpaper.jpg");
   background-size: cover;
 }
 
@@ -32,3 +35,5 @@ body {
 .welcome {
   font-family: "Righteous", cursive;
 }
+
+/* Making the gradient responsive */

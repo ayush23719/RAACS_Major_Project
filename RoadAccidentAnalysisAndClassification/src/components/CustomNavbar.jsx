@@ -1,13 +1,12 @@
 import React from "react";
 import {
   Navbar,
-  MobileNav,
   Typography,
-  Button,
   IconButton,
-  Card,
+  MobileNav,
 } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
+import "../styles/CustomNavbar.css";
 
 export default function CustomNavbar() {
   const [openNav, setOpenNav] = React.useState(false);
@@ -18,25 +17,24 @@ export default function CustomNavbar() {
       () => window.innerWidth >= 960 && setOpenNav(false)
     );
   }, []);
-
   const navList = (
     <ul className="mb-4 mt-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6 text-[white]">
-      <Typography as="li" variant="large" className="p-1 font-normal  text-lg">
+      <Typography as="li" variant="large" className="p-1 font-normal text-lg">
         <a href="#" className="flex items-center">
-          Pages
+          Analyze
         </a>
       </Typography>
-      <Typography as="li" variant="large" className="p-1 font-normal  text-lg">
+      <Typography as="li" variant="large" className="p-1 font-normal text-lg">
         <a href="#" className="flex items-center">
-          Account
+          Login
         </a>
       </Typography>
-      <Typography as="li" variant="large" className="p-1 font-normal  text-lg">
+      <Typography as="li" variant="large" className="p-1 font-normal text-lg">
         <a href="#" className="flex items-center">
-          Blocks
+          Sign Up
         </a>
       </Typography>
-      <Typography as="li" variant="large" className="p-1 font-normal  text-lg">
+      <Typography as="li" variant="large" className="p-1 font-normal text-lg">
         <a href="#" className="flex items-center">
           Docs
         </a>
@@ -54,8 +52,7 @@ export default function CustomNavbar() {
           <Link to="/welcome">
             <Typography
               variant="h2"
-              className="mr-4 cursor-pointer py-1.5 font-medium nav--heading  mx-6 text-[white]
-             "
+              className="mr-4 cursor-pointer py-1.5 font-medium nav--heading mx-6 text-[white]"
             >
               RoadWise
             </Typography>

@@ -1,6 +1,5 @@
 import { Card, Input, Button, Typography } from "@material-tailwind/react";
 import React, { useState } from "react";
-import Base from "../components/Base";
 const Home = () => {
   const [formData, setFormData] = useState({
     latitude: "",

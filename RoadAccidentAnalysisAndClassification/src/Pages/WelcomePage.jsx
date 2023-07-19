@@ -3,10 +3,12 @@ import { Typography } from "@material-tailwind/react";
 import { gsap } from "gsap";
 import HomeSvg from "../assets/home.svg";
 import { FaArrowRight } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import "../styles/WelcomePage.css";
 
 const WelcomePage = () => {
   const containerRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const container = containerRef.current;
@@ -28,6 +30,9 @@ const WelcomePage = () => {
       }
     );
   }, []);
+  const handleAnalyzeClick = () => {
+    navigate("/home");
+  };
 
   return (
     <div className="bg-white h-screen text-white">
@@ -47,7 +52,10 @@ const WelcomePage = () => {
           <Typography variant="paragraph" className="mt-2 text-lg font-bold">
             Drive safe. Drive wise.
           </Typography>
-          <button className="analyze-button bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded mt-3">
+          <button
+            className="analyze-button bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded mt-3"
+            onClick={handleAnalyzeClick}
+          >
             Analyze <FaArrowRight className="ml-1" />
           </button>
         </div>

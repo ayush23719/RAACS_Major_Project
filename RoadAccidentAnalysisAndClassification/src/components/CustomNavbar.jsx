@@ -19,25 +19,25 @@ export default function CustomNavbar() {
   }, []);
   const navList = (
     <ul className="mb-4 mt-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6 text-[white]">
-      <Typography as="li" variant="large" className="p-1 font-normal text-lg">
-        <a href="#" className="flex items-center">
+      <Typography as="li" variant="h2" className="p-1 font-normal text-lg">
+        <Link to="/home" className="flex items-center">
           Analyze
-        </a>
+        </Link>
       </Typography>
-      <Typography as="li" variant="large" className="p-1 font-normal text-lg">
-        <a href="#" className="flex items-center">
+      <Typography as="li" variant="h2" className="p-1 font-normal text-lg">
+        <Link to="#" className="flex items-center">
           Login
-        </a>
+        </Link>
       </Typography>
-      <Typography as="li" variant="large" className="p-1 font-normal text-lg">
-        <a href="#" className="flex items-center">
+      <Typography as="li" variant="h2" className="p-1 font-normal text-lg">
+        <Link to="#" className="flex items-center">
           Sign Up
-        </a>
+        </Link>
       </Typography>
-      <Typography as="li" variant="large" className="p-1 font-normal text-lg">
-        <a href="#" className="flex items-center">
+      <Typography as="li" variant="h2" className="p-1 font-normal text-lg">
+        <Link to="#" className="flex items-center">
           Docs
-        </a>
+        </Link>
       </Typography>
     </ul>
   );

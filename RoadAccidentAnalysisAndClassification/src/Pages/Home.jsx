@@ -1,104 +1,121 @@
-import { Card, Input, Button, Typography } from "@material-tailwind/react";
-import React, { useState } from "react";
+import { useState } from "react";
+import { Box, Label, Input, Select } from "theme-ui";
+import { Button } from "@material-tailwind/react";
+
 const Home = () => {
   const [formData, setFormData] = useState({
     latitude: "",
     longitude: "",
     age: "",
     weather: "",
-    road_condition: "",
+    roadCondition: "",
   });
 
-  const handleFormChange = (event) => {
-    setFormData({
-      ...formData,
-      [event.target.name]: event.target.value,
-    });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
-  const formSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = (e) => {
+    e.preventDefault();
     console.log(formData);
-    //submit data to flask api
   };
-  const form = () => {
-    return (
-      <Card
-        color=""
-        shadow={true}
-        className="w-auto p-16 flex justify-center items-center predict--card bg-[#ecf0f1] rounded-none shadow-lg predict--card"
-      >
-        <Typography variant="h1" color="blue-gray" className="form--heading">
-          Prediction
-        </Typography>
-        <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
-          <div className="mb-4 flex flex-col gap-6">
-            <Input
-              size="lg"
-              label="Latitude"
-              variant="standard"
-              className="text-xl"
-              color="teal"
-              name="latitude"
-              onChange={handleFormChange}
-            />
-            <Input
-              size="lg"
-              label="Longitude"
-              variant="standard"
-              className="text-xl"
-              color="teal"
-              name="longitude"
-              onChange={handleFormChange}
-            />
-            <Input
-              size="lg"
-              label="Age of Driver"
-              variant="standard"
-              className="text-xl"
-              color="teal"
-              name="age"
-              onChange={handleFormChange}
-            />
-            <Input
-              type="lg"
-              size="lg"
-              label="Weather Condition"
-              variant="standard"
-              className="text-xl"
-              color="teal"
-              name="weather"
-              onChange={handleFormChange}
-            />
-            <Input
-              type="lg"
-              size="lg"
-              label="Road Condition"
-              variant="standard"
-              className="text-xl"
-              color="teal"
-              name="road_condition"
-              onChange={handleFormChange}
-            />
-          </div>
-          <Button
-            className="mt-6 text-black rounded-md border-none bg-white hover:bg-[#16a085] hover:text-white mt-8"
-            fullWidth
-            size="lg"
-            ripple={true}
-            variant=""
-            onClick={formSubmit}
-          >
-            Predict
-          </Button>
-        </form>
-      </Card>
-    );
-  };
+
   return (
-    <Base>
-      <div className="h-screen flex justify-center items-center">{form()}</div>
-    </Base>
+    <div
+      style={{
+        position: "relative",
+        zIndex: 2,
+      }}
+    >
+      <h2
+        style={{
+          fontSize: "2rem",
+          fontWeight: "bold",
+          textAlign: "center",
+          marginTop: "2rem",
+          color: "white",
+        }}
+      >
+        Analyze Your Region
+      </h2>
+      <Box
+        as="form"
+        onSubmit={handleSubmit}
+        sx={{
+          maxWidth: "500px",
+          width: "90%",
+          margin: "0 auto",
+          background: "white",
+          padding: "2rem",
+          borderRadius: "8px",
+        }}
+      >
+        <Label htmlFor="latitude">Latitude</Label>
+        <Input
+          type="text"
+          id="latitude"
+          name="latitude"
+          value={formData.latitude}
+          onChange={handleChange}
+          mb={3}
+        />
+
+        <Label htmlFor="longitude">Longitude</Label>
+        <Input
+          type="text"
+          id="longitude"
+          name="longitude"
+          value={formData.longitude}
+          onChange={handleChange}
+          mb={3}
+        />
+
+        <Label htmlFor="age">Age</Label>
+        <Input
+          type="text"
+          id="age"
+          name="age"
+          value={formData.age}
+          onChange={handleChange}
+          mb={3}
+        />
+
+        <Label htmlFor="weather">Weather</Label>
+        <Select
+          id="weather"
+          name="weather"
+          value={formData.weather}
+          onChange={handleChange}
+          mb={3}
+        >
+          <option value="">Select weather</option>
+          <option value="sunny">Sunny</option>
+          <option value="cloudy">Cloudy</option>
+          <option value="rainy">Rainy</option>
+        </Select>
+
+        <Label htmlFor="roadCondition">Road Condition</Label>
+        <Select
+          id="roadCondition"
+          name="roadCondition"
+          value={formData.roadCondition}
+          onChange={handleChange}
+          mb={3}
+        >
+          <option value="">Select road condition</option>
+          <option value="dry">Dry</option>
+          <option value="wet">Wet</option>
+          <option value="icy">Icy</option>
+        </Select>
+        <Button className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded w-full h-12 text-md">
+          Submit
+        </Button>
+      </Box>
+    </div>
   );
 };
 

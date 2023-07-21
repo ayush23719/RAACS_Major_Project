@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Label, Input, Select } from "theme-ui";
 import { Button } from "@material-tailwind/react";
-
+import { useLocation } from "react-router-dom";
 const Home = () => {
   const [formData, setFormData] = useState({
     latitude: "",
@@ -10,6 +10,22 @@ const Home = () => {
     weather: "",
     roadCondition: "",
   });
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const latitude = searchParams.get("latitude");
+    const longitude = searchParams.get("longitude");
+
+    if (latitude && longitude) {
+      setFormData((prevData) => ({
+        ...prevData,
+        latitude,
+        longitude,
+      }));
+    }
+  }, [location.search]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

@@ -1,10 +1,18 @@
 {
   "dependencies": {
     "@heroicons/react": "^2.0.18",
+    "deck.gl": "^8.9.22",
     "gsap": "^3.12.2",
     "heroicons": "^2.0.18",
     "heroicons-react": "^1.4.1",
+    "leaflet": "^1.9.4",
+    "mapbox-gl": "^2.15.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
+    "react-leaflet": "^4.2.1",
+    "react-leaflet-search": "^2.0.1",
+    "react-map-gl-geocoder": "^2.2.0",
     "react-particle-backgrounds": "^1.0.4",
     "react-tsparticles": "^2.11.0"
   }

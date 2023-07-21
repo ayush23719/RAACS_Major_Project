@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Map, Marker } from "pigeon-maps";
+import { Map, Marker, ZoomControl } from "pigeon-maps";
 import { osm } from "pigeon-maps/providers";
 import { Box, Heading, Button } from "theme-ui";
 import { useNavigate } from "react-router-dom";
@@ -68,6 +68,7 @@ const MapPage = () => {
           onClick={handleMapClick}
           provider={osm}
         >
+          <ZoomControl />
           {selectedMarker && (
             <Marker
               width={50}

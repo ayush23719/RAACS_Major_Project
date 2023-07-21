@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Map, Marker } from "pigeon-maps";
-import { stamenTerrain } from "pigeon-maps/providers";
+import { osm } from "pigeon-maps/providers";
 import { Box, Heading, Button } from "theme-ui";
 import { useNavigate } from "react-router-dom";
 import "../styles/MapPage.css";
@@ -66,10 +66,11 @@ const MapPage = () => {
           defaultCenter={[51.5074, 0.1278]} // Center of London
           defaultZoom={9}
           onClick={handleMapClick}
-          provider={stamenTerrain}
+          provider={osm}
         >
           {selectedMarker && (
             <Marker
+              width={50}
               anchor={[selectedMarker.latitude, selectedMarker.longitude]}
               onClick={handleMarkerClick}
             />

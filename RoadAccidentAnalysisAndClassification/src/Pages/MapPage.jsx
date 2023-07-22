@@ -1,23 +1,34 @@
 import React, { useState } from "react";
-import { Map, Marker, ZoomControl } from "pigeon-maps";
-import { osm } from "pigeon-maps/providers";
-import { Box, Heading, Button } from "theme-ui";
+import {
+  GoogleMap,
+  Marker,
+  StandaloneSearchBox,
+  LoadScript,
+  useLoadScript,
+} from "@react-google-maps/api";
+import usePlacesAutocomplete, {
+  getGeocode,
+  getLatLng,
+} from "use-places-autocomplete";
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxPopover,
+  ComboboxList,
+  ComboboxOption,
+} from "@reach/combobox";
+import "@reach/combobox/styles.css";
+import { Box, Heading, Button, Input } from "theme-ui";
 import { useNavigate } from "react-router-dom";
-import "../styles/MapPage.css";
 
 const MapPage = () => {
-  const [selectedMarker, setSelectedMarker] = useState(null);
-  const mapRef = React.createRef();
   const navigate = useNavigate();
-
-  const handleMapClick = (event) => {
-    const { latLng } = event;
-    const newMarker = {
-      latitude: latLng[0],
-      longitude: latLng[1],
-    };
-    setSelectedMarker(newMarker);
-  };
+  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: import.meta.env.VITE_REACT_APP_GOOGLE_API_KEY,
+    libraries: ["places"], // Add the 'places' library here
+  });
 
   const handleProceedClick = () => {
     if (selectedMarker) {
@@ -26,12 +37,30 @@ const MapPage = () => {
     }
   };
 
-  const handleMarkerClick = () => {
-    if (selectedMarker) {
-      const { latitude, longitude } = selectedMarker;
-      alert(`Latitude: ${latitude}, Longitude: ${longitude}`);
-    }
+  const handleMapClick = (event) => {
+    const { latLng } = event;
+    const newMarker = {
+      latitude: latLng.lat(),
+      longitude: latLng.lng(),
+    };
+    setSelectedMarker(newMarker);
   };
+
+  const handleSearchLoad = (searchBox) => {
+    searchBox.addListener("places_changed", () => {
+      const places = searchBox.getPlaces();
+      if (places.length > 0) {
+        const { lat, lng } = places[0].geometry.location;
+        const latitude = lat();
+        const longitude = lng();
+        setSelectedMarker({ latitude, longitude });
+        setSearchQuery(places[0].formatted_address);
+      }
+    });
+  };
+
+  if (loadError) return <h1>Error loading maps</h1>;
+  if (!isLoaded) return <h1>Loading...</h1>;
 
   return (
     <Box
@@ -60,23 +89,41 @@ const MapPage = () => {
         </Heading>
       </Box>
       <Box sx={{ position: "relative", zIndex: 2 }}>
-        <Map
-          ref={mapRef}
-          height={400}
-          defaultCenter={[51.5074, 0.1278]} // Center of London
-          defaultZoom={9}
+        <GoogleMap
+          mapContainerStyle={{ height: "400px", width: "100%" }}
+          center={{ lat: 51.5074, lng: -0.1278 }} // Center of London (UK)
+          zoom={10}
           onClick={handleMapClick}
-          provider={osm}
         >
-          <ZoomControl />
+          <StandaloneSearchBox
+            onLoad={handleSearchLoad}
+            onPlacesChanged={() => {}}
+          >
+            <Input
+              type="text"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              sx={{
+                width: "100%",
+                p: "0.5rem",
+                fontSize: "0.875rem",
+                borderRadius: "4px",
+                border: "1px solid #ccc",
+                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                bg: "white",
+              }}
+            />
+          </StandaloneSearchBox>
           {selectedMarker && (
             <Marker
-              width={50}
-              anchor={[selectedMarker.latitude, selectedMarker.longitude]}
-              onClick={handleMarkerClick}
+              position={{
+                lat: selectedMarker.latitude,
+                lng: selectedMarker.longitude,
+              }}
             />
           )}
-        </Map>
+        </GoogleMap>
       </Box>
       <Box
         sx={{

@@ -13,8 +13,10 @@
     "@headlessui/react": "^1.7.15",
     "@heroicons/react": "^2.0.17",
     "@material-tailwind/react": "^1.4.2",
+    "@reach/combobox": "^0.18.0",
+    "@react-google-maps/api": "^2.19.0",
     "axios": "^1.3.5",
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.3.1",
     "pigeon-maps": "^0.21.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -23,7 +25,8 @@
     "react-tsparticles": "^2.9.3",
     "react-typewriter-effect": "^1.1.0",
     "theme-ui": "^0.16.0",
-    "tsparticles": "^2.9.3"
+    "tsparticles": "^2.9.3",
+    "use-places-autocomplete": "^4.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",

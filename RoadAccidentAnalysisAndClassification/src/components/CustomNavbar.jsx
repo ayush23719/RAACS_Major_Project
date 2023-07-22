@@ -20,7 +20,7 @@ export default function CustomNavbar() {
   const navList = (
     <ul className="mb-4 mt-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6 text-[white]">
       <Typography as="li" variant="h2" className="p-1 font-normal text-lg">
-        <Link to="/home" className="flex items-center">
+        <Link to="/map" className="flex items-center">
           Analyze
         </Link>
       </Typography>

@@ -88,7 +88,7 @@ const Home = () => {
       const response = await axios.post("/predict", requestData);
 
       const predictions = response.data;
-      console.log(predictions); // Do something with the predictions
+      alert(JSON.stringify(predictions)); // Do something with the predictions
     } catch (error) {
       console.error("Error:", error);
     }

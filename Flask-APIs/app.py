@@ -81,7 +81,7 @@ def predict():
     prediction = int(prediction[0])
 
     # Return the prediction as JSON
-    return jsonify({'prediction': prediction})
+    return jsonify({'severity_index': prediction})
 
 
 if __name__ == '__main__':

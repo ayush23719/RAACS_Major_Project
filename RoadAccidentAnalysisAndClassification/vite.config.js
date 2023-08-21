@@ -6,5 +6,11 @@ export default defineConfig({
   server: {
     port: 3000,
     open: '/welcome',
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:5000', // Change this to the address of your Flask server
+        changeOrigin: true,
+      },
+    },
   },
 })

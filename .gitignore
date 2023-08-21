@@ -1,4 +1,5 @@
 Dataset/accidents_2012_to_2014.csv
-Notebook/model.pkl
+Notebook/model.joblib
 Dataset/test.csv
 node_modules
+.ipynb_checkpoints

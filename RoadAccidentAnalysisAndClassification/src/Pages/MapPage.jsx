@@ -3,21 +3,8 @@ import {
   GoogleMap,
   Marker,
   StandaloneSearchBox,
-  LoadScript,
   useLoadScript,
 } from "@react-google-maps/api";
-import usePlacesAutocomplete, {
-  getGeocode,
-  getLatLng,
-} from "use-places-autocomplete";
-import {
-  Combobox,
-  ComboboxInput,
-  ComboboxPopover,
-  ComboboxList,
-  ComboboxOption,
-} from "@reach/combobox";
-import "@reach/combobox/styles.css";
 import { Box, Heading, Button, Input } from "theme-ui";
 import { useNavigate } from "react-router-dom";
 
@@ -32,16 +19,16 @@ const MapPage = () => {
 
   const handleProceedClick = () => {
     if (selectedMarker) {
-      const { latitude, longitude } = selectedMarker;
-      navigate(`/home?latitude=${latitude}&longitude=${longitude}`);
+      const { Latitude, Longitude } = selectedMarker;
+      navigate(`/home?Latitude=${Latitude}&Longitude=${Longitude}`);
     }
   };
 
   const handleMapClick = (event) => {
     const { latLng } = event;
     const newMarker = {
-      latitude: latLng.lat(),
-      longitude: latLng.lng(),
+      Latitude: latLng.lat(),
+      Longitude: latLng.lng(),
     };
     setSelectedMarker(newMarker);
   };
@@ -51,9 +38,9 @@ const MapPage = () => {
       const places = searchBox.getPlaces();
       if (places.length > 0) {
         const { lat, lng } = places[0].geometry.location;
-        const latitude = lat();
-        const longitude = lng();
-        setSelectedMarker({ latitude, longitude });
+        const Latitude = lat();
+        const Longitude = lng();
+        setSelectedMarker({ Latitude, Longitude });
         setSearchQuery(places[0].formatted_address);
       }
     });
@@ -118,8 +105,8 @@ const MapPage = () => {
           {selectedMarker && (
             <Marker
               position={{
-                lat: selectedMarker.latitude,
-                lng: selectedMarker.longitude,
+                lat: selectedMarker.Latitude,
+                lng: selectedMarker.Longitude,
               }}
             />
           )}

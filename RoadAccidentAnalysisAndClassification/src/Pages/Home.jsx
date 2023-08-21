@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Label, Input, Select } from "theme-ui";
-import { Button } from "@material-tailwind/react";
+import { Button, Input, Select, Option } from "@material-tailwind/react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 
@@ -96,128 +95,107 @@ const Home = () => {
   };
 
   return (
-    <div
-      style={{
-        position: "relative",
-        zIndex: 2,
-      }}
-    >
-      <h2
-        style={{
-          fontSize: "2rem",
-          fontWeight: "bold",
-          textAlign: "center",
-          marginTop: "2rem",
-          color: "white",
-        }}
-      >
+    <div className="relative z-2">
+      <h2 className="text-center text-4xl font-bold mt-8 text-white">
         Analyze Your Region
       </h2>
-      <Box
-        as="form"
+      <form
+        className="max-w-lg mx-auto bg-white p-8 rounded shadow-md"
         onSubmit={handleSubmit}
-        sx={{
-          maxWidth: "500px",
-          width: "90%",
-          margin: "0 auto",
-          background: "white",
-          padding: "2rem",
-          borderRadius: "8px",
-        }}
       >
-        <Label htmlFor="latitude">Latitude</Label>
-        <Input
-          type="text"
-          id="latitude"
-          name="Latitude"
-          value={formData.Latitude}
-          onChange={handleChange}
-          mb={3}
-        />
+        <div className="grid gap-4">
+          <Input
+            id="latitude"
+            name="Latitude"
+            value={formData.Latitude}
+            onChange={handleChange}
+            label="Latitude"
+            className="w-full"
+          />
+          <Input
+            id="longitude"
+            name="Longitude"
+            value={formData.Longitude}
+            onChange={handleChange}
+            label="Longitude"
+            className="w-full"
+          />
+          <Select
+            id="dayOfWeek"
+            name="Day_of_Week"
+            value={formData.Day_of_Week}
+            onChange={handleChange}
+            label="Day of Week"
+            className="w-full"
+          >
+            <Option value="Sunday">Sunday</Option>
+            <Option value="Monday">Monday</Option>
+            <Option value="Tuesday">Tuesday</Option>
+            <Option value="Wednesday">Wednesday</Option>
+            <Option value="Thursday">Thursday</Option>
+            <Option value="Friday">Friday</Option>
+            <Option value="Saturday">Saturday</Option>
+          </Select>
 
-        <Label htmlFor="longitude">Longitude</Label>
-        <Input
-          type="text"
-          id="longitude"
-          name="Longitude"
-          value={formData.Longitude}
-          onChange={handleChange}
-          mb={3}
-        />
+          <Select
+            id="weather"
+            name="Weather_Conditions"
+            value={formData.Weather_Conditions}
+            onChange={handleChange}
+            mb={3}
+            label="Weather"
+            className="w-full"
+          >
+            <Option value="">Select weather</Option>
+            <Option value="Unknown">Unknown</Option>
+            <Option value="Fine without high winds">
+              Fine without high winds
+            </Option>
+            <Option value="Raining without high winds">
+              Raining without high winds
+            </Option>
 
-        <Label htmlFor="dayOfWeek">Day of Week</Label>
-        <Select
-          id="dayOfWeek"
-          name="Day_of_Week"
-          value={formData.Day_of_Week}
-          onChange={handleChange}
-          mb={3}
-        >
-          <option value="Sunday">Sunday</option>
-          <option value="Monday">Monday</option>
-          <option value="Tuesday">Tuesday</option>
-          <option value="Wednesday">Wednesday</option>
-          <option value="Thursday">Thursday</option>
-          <option value="Friday">Friday</option>
-          <option value="Saturday">Saturday</option>
-        </Select>
+            <Option value="Snowing without high winds">
+              Snowing without high winds
+            </Option>
+            <Option value="Raining with high winds">
+              Raining with high winds
+            </Option>
+            <Option value="Fine with high winds">Fine with high winds</Option>
 
-        <Label htmlFor="weather">Weather</Label>
-        <Select
-          id="weather"
-          name="Weather_Conditions"
-          value={formData.Weather_Conditions}
-          onChange={handleChange}
-          mb={3}
-        >
-          <option value="">Select weather</option>
-          <option value="Unknown">Unknown</option>
-          <option value="Fine without high winds">
-            Fine without high winds
-          </option>
-          <option value="Raining without high winds">
-            Raining without high winds
-          </option>
+            <Option value="Fog or mist">Fog or mist</Option>
+            <Option value="Snowing with high winds">
+              Snowing with high winds
+            </Option>
+            <Option value="Other">Other</Option>
+          </Select>
 
-          <option value="Snowing without high winds">
-            Snowing without high winds
-          </option>
-          <option value="Raining with high winds">
-            Raining with high winds
-          </option>
-          <option value="Fine with high winds">Fine with high winds</option>
-
-          <option value="Fog or mist">Fog or mist</option>
-          <option value="Snowing with high winds">
-            Snowing with high winds
-          </option>
-          <option value="Other">Other</option>
-        </Select>
-
-        <Label htmlFor="roadCondition">Road Condition</Label>
-        <Select
-          id="roadCondition"
-          name="Road_Surface_Conditions"
-          value={formData.Road_Surface_Conditions}
-          onChange={handleChange}
-          mb={3}
-        >
-          <option value="">Select road condition</option>
-          <option value="Dry">Dry</option>
-          <option value="Wet/Damp">Wet/Damp</option>
-          <option value="Frost/Ice">Frost/Ice</option>
-          <option value="Snow">Snow</option>
-          <option value="Flood (Over 3cm of water)">
-            Flood (Over 3cm of water)
-          </option>
-        </Select>
-        <Button
-          className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded w-full h-12 text-md"
-          type="submit"
-        >
-          Submit
-        </Button>
-      </Box>
+          <Select
+            id="roadCondition"
+            name="Road_Surface_Conditions"
+            value={formData.Road_Surface_Conditions}
+            onChange={handleChange}
+            mb={3}
+            label="Road Condition"
+            className="w-full"
+          >
+            <Option value="">Select road condition</Option>
+            <Option value="Dry">Dry</Option>
+            <Option value="Wet/Damp">Wet/Damp</Option>
+            <Option value="Frost/Ice">Frost/Ice</Option>
+            <Option value="Snow">Snow</Option>
+            <Option value="Flood (Over 3cm of water)">
+              Flood (Over 3cm of water)
+            </Option>
+          </Select>
+          <Button
+            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded w-full h-12 text-md"
+            type="submit"
+          >
+            Submit
+          </Button>
+        </div>
+      </form>
     </div>
   );
 };

@@ -8,7 +8,7 @@ export default defineConfig({
     open: '/welcome',
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:5000', // Change this to the address of your Flask server
+        target: 'http://127.0.0.1:5000',
         changeOrigin: true,
       },
     },

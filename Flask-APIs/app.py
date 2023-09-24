@@ -3,57 +3,113 @@ import pandas as pd
 import joblib
 from flask_cors import CORS
 from sklearn import preprocessing
+import requests
 
 app = Flask(__name__)
-# Enable CORS on your Flask app
-CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:3000"}})
 
-# Load the trained model
-# Adjust the path to your model file
+CORS(app, resources={r"/*": {"origins": "*"}})
+
 model = joblib.load('../Notebook/model.joblib')
 
-# The column names for the independent variables
-independent_columns = ["Latitude", "Longitude", "Day_of_Week",
-                       "Weather_Conditions", "Road_Surface_Conditions"]
-
-# Hardcoded data for the other columns
 hardcoded_data = {
-    "Location_Easting_OSGR": [366040],  # Fill in your value
-    "Location_Northing_OSGR": [389140],  # Fill in your value
-    "Speed_limit": [40],  # Fill in your value
-    "2nd_Road_Class": [4],  # Fill in your value
-    "Number_of_Vehicles": [2],  # Fill in your value
-    "Light_Conditions": [1],  # Fill in your value
-    "Year": [2010]  # Fill in your value
+    "Location_Easting_OSGR": [366040],
+    "Location_Northing_OSGR": [389140],
+    "Speed_limit": [40],
+    "2nd_Road_Class": [4],
+    "Light_Conditions": [1],
 }
 
 
+weather_api_key = "fb81fd36c26dbb449c5ede2b35c7364d"
+
+
+windy_or_not = {
+    'clear sky': 'Fine without high winds',
+    'few clouds': 'Fine without high winds',
+    'scattered clouds': 'Fine without high winds',
+    'broken clouds': 'Fine without high winds',
+    'overcast clouds': 'Fine with high winds',
+}
+
+
+def fetch_weather_data(latitude, longitude, api_key):
+
+    url = f"http://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={api_key}"
+
+    response = requests.get(url)
+
+    data = response.json()
+
+    weather_id = data["weather"][0]["id"]
+    weather_description = data["weather"][0]["description"]
+
+    first_digit = int(str(weather_id)[0])
+
+    default_mapping = {
+        3: 'Raining without high winds',
+        2: 'Raining with high winds',
+        5: 'Raining with high winds',
+        6: 'Snowing without high winds',
+        7: 'Fog or mist',
+
+    }
+
+    print("Weather ID:", weather_id)
+    if first_digit == 8:
+        mapped_weather_condition = windy_or_not.get(
+            weather_description, 'Unknown')
+    else:
+        mapped_weather_condition = default_mapping.get(first_digit, 'Unknown')
+
+    print("Weather Condition:", mapped_weather_condition)
+
+    return mapped_weather_condition
+
+
 def preprocess_data(data):
-    # Create a DataFrame with the correct columns
+
     columns = ["Location_Easting_OSGR", "Location_Northing_OSGR", "Longitude", "Latitude", "Day_of_Week", "Speed_limit",
                "2nd_Road_Class", "Number_of_Vehicles", "Light_Conditions", "Weather_Conditions", "Road_Surface_Conditions", "Year"]
     data_df = pd.DataFrame(columns=columns)
 
-    # Fill in the values from the incoming data
-    data_df['Latitude'] = [data.get('Latitude', None)]
-    data_df['Longitude'] = [data.get('Longitude', None)]
-    data_df['Day_of_Week'] = [data.get('Day_of_Week', None)]
-    data_df['Weather_Conditions'] = [data.get('Weather_Conditions', None)]
-    data_df['Road_Surface_Conditions'] = [
-        data.get('Road_Surface_Conditions', None)]
+    start_latitude = data.get('startLat', None)
+    start_longitude = data.get('startLong', None)
+    end_latitude = data.get('endLat', None)
+    end_longitude = data.get('endLong', None)
+    Year = data.get('Year', None)
+    Day_of_Week = data.get('Day_of_Week', None)
+    Number_of_Vehicles = data.get('Number_of_Vehicles', None)
 
-    # Convert 'Weather_Conditions' and 'Road_Surface_Conditions' to categorical data type
+    if start_latitude is None or start_longitude is None or end_latitude is None or end_longitude is None:
+        return jsonify({'error': 'Invalid coordinates'}), 400
+
+    average_latitude = (start_latitude + end_latitude) / 2
+    average_longitude = (start_longitude + end_longitude) / 2
+
+    print("Average Latitude:", average_latitude)
+    print("Average Longitude:", average_longitude)
+
+    data_df['Latitude'] = [average_latitude]
+    data_df['Longitude'] = [average_longitude]
+    data_df['Day_of_Week'] = [Day_of_Week]
+    data_df['Number_of_Vehicles'] = [Number_of_Vehicles]
+    data_df['Year'] = [Year]
+
+    data_df['Road_Surface_Conditions'] = ["Dry"]
+    weather_condition = fetch_weather_data(
+        average_latitude, average_longitude, weather_api_key)
+
+    data_df['Weather_Conditions'] = [weather_condition]
+
     label_encoder = preprocessing.LabelEncoder()
     data_df['Weather_Conditions'] = label_encoder.fit_transform(
         data_df['Weather_Conditions'])
     data_df['Road_Surface_Conditions'] = label_encoder.fit_transform(
         data_df['Road_Surface_Conditions'])
 
-    # Convert 'Latitude' and 'Longitude' to float values
     data_df['Latitude'] = data_df['Latitude'].astype(float)
     data_df['Longitude'] = data_df['Longitude'].astype(float)
 
-    # Fill the hardcoded data into the DataFrame
     for column, values in hardcoded_data.items():
         data_df[column] = values
 
@@ -62,25 +118,20 @@ def preprocess_data(data):
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    # Get the data from the request
+
     data = request.get_json()
     print("Received Data:", data)
 
-    # Preprocess the data
     data_df = preprocess_data(data)
     print("Processed DataFrame:")
-    # add new line after each column for better readability
+
     print(data_df.to_string(index=False, line_width=1000).replace(",", ",\n"))
 
-    # Make predictions using the model
-    # Here, you need to extract the necessary columns required for prediction
     prediction = model.predict(data_df[["Location_Easting_OSGR", "Location_Northing_OSGR", "Longitude", "Latitude", "Day_of_Week",
                                "Speed_limit", "2nd_Road_Class", "Number_of_Vehicles", "Light_Conditions", "Weather_Conditions", "Road_Surface_Conditions", "Year"]])
 
-    # Convert the prediction to a standard Python data type (integer)
     prediction = int(prediction[0])
 
-    # Return the prediction as JSON
     return jsonify({'severity_index': prediction})
 
 

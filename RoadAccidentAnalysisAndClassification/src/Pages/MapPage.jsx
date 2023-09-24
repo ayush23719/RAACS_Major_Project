@@ -1,26 +1,26 @@
-import React, { useState } from "react";
-import {
-  GoogleMap,
-  Marker,
-  StandaloneSearchBox,
-  useLoadScript,
-} from "@react-google-maps/api";
-import { Box, Heading, Button, Input } from "theme-ui";
+import React, { useState, useEffect } from "react";
+import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import { Box, Heading, Button } from "theme-ui";
 import { useNavigate } from "react-router-dom";
 
 const MapPage = () => {
   const navigate = useNavigate();
   const [selectedMarker, setSelectedMarker] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [startMarker, setStartMarker] = useState(null);
+  const [endMarker, setEndMarker] = useState(null);
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_REACT_APP_GOOGLE_API_KEY,
-    libraries: ["places"], // Add the 'places' library here
   });
 
+  const bothMarkersSelected = startMarker && endMarker;
+
   const handleProceedClick = () => {
-    if (selectedMarker) {
-      const { Latitude, Longitude } = selectedMarker;
-      navigate(`/home?Latitude=${Latitude}&Longitude=${Longitude}`);
+    if (bothMarkersSelected) {
+      const { Latitude: startLat, Longitude: startLng } = startMarker;
+      const { Latitude: endLat, Longitude: endLng } = endMarker;
+      navigate(
+        `/home?startLat=${startLat}&startLng=${startLng}&endLat=${endLat}&endLng=${endLng}`
+      );
     }
   };
 
@@ -30,21 +30,36 @@ const MapPage = () => {
       Latitude: latLng.lat(),
       Longitude: latLng.lng(),
     };
-    setSelectedMarker(newMarker);
-  };
 
-  const handleSearchLoad = (searchBox) => {
-    searchBox.addListener("places_changed", () => {
-      const places = searchBox.getPlaces();
-      if (places.length > 0) {
-        const { lat, lng } = places[0].geometry.location;
-        const Latitude = lat();
-        const Longitude = lng();
-        setSelectedMarker({ Latitude, Longitude });
-        setSearchQuery(places[0].formatted_address);
+    if (startMarker) {
+      const latDiff = Math.abs(startMarker.Latitude - newMarker.Latitude);
+      const lngDiff = Math.abs(startMarker.Longitude - newMarker.Longitude);
+      if (latDiff < 0.01 && lngDiff < 0.01) {
+        setStartMarker(null);
+        return;
       }
-    });
+    }
+    if (endMarker) {
+      const latDiff = Math.abs(endMarker.Latitude - newMarker.Latitude);
+      const lngDiff = Math.abs(endMarker.Longitude - newMarker.Longitude);
+      if (latDiff < 0.01 && lngDiff < 0.01) {
+        setEndMarker(null);
+        return;
+      }
+    }
+
+    if (!startMarker) {
+      setStartMarker(newMarker);
+    } else if (!endMarker) {
+      setEndMarker(newMarker);
+    } else {
+    }
   };
+  useEffect(() => {
+    console.log("Start Marker:", startMarker);
+    console.log("End Marker:", endMarker);
+    console.log("Selected Marker:", selectedMarker);
+  }, [startMarker, endMarker, selectedMarker]);
 
   if (loadError) return <h1>Error loading maps</h1>;
   if (!isLoaded) return <h1>Loading...</h1>;
@@ -78,36 +93,28 @@ const MapPage = () => {
       <Box sx={{ position: "relative", zIndex: 2 }}>
         <GoogleMap
           mapContainerStyle={{ height: "400px", width: "100%" }}
-          center={{ lat: 51.5074, lng: -0.1278 }} // Center of London (UK)
+          center={{ lat: 51.5074, lng: -0.1278 }}
           zoom={10}
           onClick={handleMapClick}
         >
-          <StandaloneSearchBox
-            onLoad={handleSearchLoad}
-            onPlacesChanged={() => {}}
-          >
-            <Input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              sx={{
-                width: "100%",
-                p: "0.5rem",
-                fontSize: "0.875rem",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                bg: "white",
-              }}
-            />
-          </StandaloneSearchBox>
-          {selectedMarker && (
+          {startMarker && (
             <Marker
               position={{
-                lat: selectedMarker.Latitude,
-                lng: selectedMarker.Longitude,
+                lat: startMarker.Latitude,
+                lng: startMarker.Longitude,
               }}
+              label="Start"
+              onClick={() => setStartMarker(null)}
+            />
+          )}
+          {endMarker && (
+            <Marker
+              position={{
+                lat: endMarker.Latitude,
+                lng: endMarker.Longitude,
+              }}
+              label="End"
+              onClick={() => setEndMarker(null)}
             />
           )}
         </GoogleMap>
@@ -122,9 +129,9 @@ const MapPage = () => {
       >
         <Button
           onClick={handleProceedClick}
-          disabled={!selectedMarker}
+          disabled={!bothMarkersSelected}
           className={`bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded ${
-            selectedMarker ? "" : "cursor-not-allowed"
+            bothMarkersSelected ? "" : "cursor-not-allowed"
           }`}
         >
           Proceed

@@ -5,8 +5,10 @@ from flask_cors import CORS
 from sklearn import preprocessing
 import requests
 import pyproj
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
+socket = SocketIO(app, cors_allowed_origins="*");
 
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -85,27 +87,27 @@ def preprocess_data(data):
 
     start_latitude = data.get('startLat', None)
     start_longitude = data.get('startLong', None)
-    end_latitude = data.get('endLat', None)
-    end_longitude = data.get('endLong', None)
+    end_latitude = data.get('endLat', 0)
+    end_longitude = data.get('endLong', 0)
     Day_of_Week = data.get('Day_of_Week', None)
     Number_of_Vehicles = data.get('Number_of_Vehicles', None)
 
-    if start_latitude is None or start_longitude is None or end_latitude is None or end_longitude is None:
-        return jsonify({'error': 'Invalid coordinates'}), 400
+    # if start_latitude is None or start_longitude is None or end_latitude is None or end_longitude is None:
+    #     return jsonify({'error': 'Invalid coordinates'}), 400
 
     average_latitude = (start_latitude + end_latitude) / 2
     average_longitude = (start_longitude + end_longitude) / 2
 
     print("Average Latitude:", average_latitude)
     print("Average Longitude:", average_longitude)
+    data_df['Latitude'] = [average_latitude]
+    data_df['Longitude'] = [average_longitude]
     easting, northing = convert_lat_lng_to_osgr(
         average_latitude, average_longitude)
     data_df['Location_Easting_OSGR'] = [easting]
     data_df['Location_Northing_OSGR'] = [northing]
     print("Easting:", easting)
     print("Northing:", northing)
-    data_df['Latitude'] = [average_latitude]
-    data_df['Longitude'] = [average_longitude]
     data_df['Day_of_Week'] = [Day_of_Week]
     data_df['Number_of_Vehicles'] = [Number_of_Vehicles]
 
@@ -151,5 +153,22 @@ def predict():
                     'average_longitude': data_df['Longitude'][0], })
 
 
+#Websocket handler
+@socket.on('location_update')
+def handle_location_update(data):
+    # start_latitude = data['startLat']
+    # start_longitude = data['startLong']
+    # end_latitude = data['endLat']
+    # end_longitude = data['endLong']
+    # Day_of_Week = data['Day_of_Week']
+    # Number_of_Vehicles = data['Number_of_Vehicles']
+    data_df = preprocess_data(data);
+
+    prediction = model.predict(data_df[["Location_Easting_OSGR", "Location_Northing_OSGR", "Longitude", "Latitude", "Day_of_Week",
+                               "Speed_limit", "2nd_Road_Class", "Number_of_Vehicles", "Light_Conditions", "Weather_Conditions", "Road_Surface_Conditions", "Year"]])
+    
+    emit("severity_update", {"severity_index": prediction.tolist()});
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    socket.run(app, debug=True)

@@ -2,30 +2,42 @@ import React, { useState, useEffect } from "react";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import { Box, Heading, Button } from "theme-ui";
 import { useNavigate } from "react-router-dom";
-
+import io from "socket.io-client";
 const LiveSeverity = () => {
   const navigate = useNavigate();
   const [mapCenter, setMapCenter] = useState({ lat: 51.5074, lng: -0.1278 });
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [userLocation, setUserLocation] = useState(null); // State to store the user's location
+
+  const [severity, setSeverity] = useState(null);
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_REACT_APP_GOOGLE_API_KEY,
   });
 
+  const socket = io("http://localhost:5000");
+
   // Function to get the user's location
   const getUserLocation = (successCallback, errorCallback) => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
+      navigator.geolocation.watchPosition(
         (position) => {
           const userLocation = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           };
           successCallback(userLocation);
+          const requestData = {
+            startLat: parseFloat(position.coords.latitude),
+            startLong: parseFloat(position.coords.longitude),
+            Day_of_Week: 2,
+            Number_of_Vehicles: 2,
+          };
+          socket.emit("location_update", requestData);
         },
         (error) => {
           errorCallback(error);
-        }
+        },
+        { enableHighAccuracy: true, distanceFilter: 100 }
       );
     } else {
       errorCallback("Geolocation is not supported by your browser.");
@@ -57,6 +69,17 @@ const LiveSeverity = () => {
         console.error(error);
       }
     );
+  }, []);
+
+  useEffect(() => {
+    socket.on("severity_update", (data) => {
+      console.log("Recorded severity:", data.severity_index)
+      setSeverity(data.severity_index);
+    })
+
+    return () => {
+      socket.off("severity_update")
+    }
   }, []);
 
   if (loadError) return <h1>Error loading maps</h1>;
@@ -126,6 +149,6 @@ const LiveSeverity = () => {
       </Box>
     </Box>
   );
-};
+};  
 
 export default LiveSeverity;

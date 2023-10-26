@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Button, Input, Select, Option } from "@material-tailwind/react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Home = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     Start_Lat: "",
     Start_Long: "",
@@ -11,7 +12,6 @@ const Home = () => {
     End_Long: "",
     Number_of_Vehicles: "",
     Day_of_Week: "",
-    Year: "",
   });
 
   const location = useLocation();
@@ -53,19 +53,11 @@ const Home = () => {
     }));
   }, []);
 
-  const years = Array.from({ length: 12 }, (_, i) => 2012 + i);
-
   const handleTextChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
-    }));
-  };
-  const handleYearChange = (selectedYear) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      Year: selectedYear,
     }));
   };
 
@@ -79,27 +71,30 @@ const Home = () => {
       const endLat = searchParams.get("endLat");
       const endLong = searchParams.get("endLng");
 
-      const { Year, Day_of_Week, Number_of_Vehicles } = formData;
+      const { Day_of_Week, Number_of_Vehicles } = formData;
 
       if (!startLat || !startLong || !endLat || !endLong) {
         console.error("Invalid coordinates");
         return;
       }
-
       const requestData = {
         startLat: parseFloat(startLat),
         startLong: parseFloat(startLong),
         endLat: parseFloat(endLat),
         endLong: parseFloat(endLong),
-        Year: parseInt(Year),
         Day_of_Week: mapDayToNumber(Day_of_Week),
         Number_of_Vehicles: parseInt(Number_of_Vehicles),
       };
 
       const response = await axios.post("/predict", requestData);
+      const { severity_index, average_latitude, average_longitude } =
+        response.data;
 
-      const predictions = response.data;
-      alert(JSON.stringify(predictions));
+      // Construct a query string with the new response data
+      const queryString = `severity_index=${severity_index}&average_latitude=${average_latitude}&average_longitude=${average_longitude}`;
+
+      // Navigate to the analysis page with the new query string
+      navigate(`/analysis?${queryString}`);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -169,21 +164,7 @@ const Home = () => {
             <Option value="Friday">Friday</Option>
             <Option value="Saturday">Saturday</Option>
           </Select>
-          <Select
-            variant="outlined"
-            id="year"
-            name="Year"
-            value={formData.Year}
-            onChange={handleYearChange} // Pass the selected year directly
-            label="Year"
-            className="w-full"
-          >
-            {years.map((year) => (
-              <Option key={year} value={year}>
-                {year}
-              </Option>
-            ))}
-          </Select>
+
           <Button
             className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded w-full h-12 text-md"
             type="submit"

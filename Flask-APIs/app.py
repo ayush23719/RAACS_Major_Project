@@ -4,6 +4,7 @@ import joblib
 from flask_cors import CORS
 from sklearn import preprocessing
 import requests
+import pyproj
 
 app = Flask(__name__)
 
@@ -11,12 +12,22 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 model = joblib.load('../Notebook/model.joblib')
 
+wgs84 = pyproj.Proj(init='epsg:4326')  # WGS84
+osgb36 = pyproj.Proj(init='epsg:27700')  # British National Grid
+
+# Function to convert latitude and longitude to OSGR
+
+
+def convert_lat_lng_to_osgr(latitude, longitude):
+    easting, northing = pyproj.transform(wgs84, osgb36, longitude, latitude)
+    return easting, northing
+
+
 hardcoded_data = {
-    "Location_Easting_OSGR": [366040],
-    "Location_Northing_OSGR": [389140],
     "Speed_limit": [40],
-    "2nd_Road_Class": [4],
-    "Light_Conditions": [1],
+    "2nd_Road_Class": [6],
+    "Light_Conditions": [2],
+    "Year": [2012],
 }
 
 
@@ -76,7 +87,6 @@ def preprocess_data(data):
     start_longitude = data.get('startLong', None)
     end_latitude = data.get('endLat', None)
     end_longitude = data.get('endLong', None)
-    Year = data.get('Year', None)
     Day_of_Week = data.get('Day_of_Week', None)
     Number_of_Vehicles = data.get('Number_of_Vehicles', None)
 
@@ -88,12 +98,16 @@ def preprocess_data(data):
 
     print("Average Latitude:", average_latitude)
     print("Average Longitude:", average_longitude)
-
+    easting, northing = convert_lat_lng_to_osgr(
+        average_latitude, average_longitude)
+    data_df['Location_Easting_OSGR'] = [easting]
+    data_df['Location_Northing_OSGR'] = [northing]
+    print("Easting:", easting)
+    print("Northing:", northing)
     data_df['Latitude'] = [average_latitude]
     data_df['Longitude'] = [average_longitude]
     data_df['Day_of_Week'] = [Day_of_Week]
     data_df['Number_of_Vehicles'] = [Number_of_Vehicles]
-    data_df['Year'] = [Year]
 
     data_df['Road_Surface_Conditions'] = ["Dry"]
     weather_condition = fetch_weather_data(
@@ -132,7 +146,9 @@ def predict():
 
     prediction = int(prediction[0])
 
-    return jsonify({'severity_index': prediction})
+    return jsonify({'severity_index': prediction,
+                    'average_latitude': data_df['Latitude'][0],
+                    'average_longitude': data_df['Longitude'][0], })
 
 
 if __name__ == '__main__':

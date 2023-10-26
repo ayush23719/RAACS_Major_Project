@@ -25,15 +25,11 @@ export default function CustomNavbar() {
         </Link>
       </Typography>
       <Typography as="li" variant="h2" className="p-1 font-normal text-lg">
-        <Link to="#" className="flex items-center">
-          Login
+        <Link to="/live" className="flex items-center">
+          Live Severity
         </Link>
       </Typography>
-      <Typography as="li" variant="h2" className="p-1 font-normal text-lg">
-        <Link to="#" className="flex items-center">
-          Sign Up
-        </Link>
-      </Typography>
+
       <Typography as="li" variant="h2" className="p-1 font-normal text-lg">
         <Link to="#" className="flex items-center">
           Docs

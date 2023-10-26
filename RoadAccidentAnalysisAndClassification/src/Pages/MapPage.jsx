@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const MapPage = () => {
   const navigate = useNavigate();
+  const [mapCenter, setMapCenter] = useState({ lat: 51.5074, lng: -0.1278 });
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [startMarker, setStartMarker] = useState(null);
   const [endMarker, setEndMarker] = useState(null);
@@ -56,10 +57,18 @@ const MapPage = () => {
     }
   };
   useEffect(() => {
-    console.log("Start Marker:", startMarker);
-    console.log("End Marker:", endMarker);
-    console.log("Selected Marker:", selectedMarker);
-  }, [startMarker, endMarker, selectedMarker]);
+    if (startMarker) {
+      setMapCenter({
+        lat: startMarker.Latitude,
+        lng: startMarker.Longitude,
+      });
+    } else if (endMarker) {
+      setMapCenter({
+        lat: endMarker.Latitude,
+        lng: endMarker.Longitude,
+      });
+    }
+  }, [startMarker, endMarker]);
 
   if (loadError) return <h1>Error loading maps</h1>;
   if (!isLoaded) return <h1>Loading...</h1>;
@@ -93,8 +102,8 @@ const MapPage = () => {
       <Box sx={{ position: "relative", zIndex: 2 }}>
         <GoogleMap
           mapContainerStyle={{ height: "400px", width: "100%" }}
-          center={{ lat: 51.5074, lng: -0.1278 }}
-          zoom={10}
+          center={mapCenter}
+          zoom={12}
           onClick={handleMapClick}
         >
           {startMarker && (

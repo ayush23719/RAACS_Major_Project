@@ -10,6 +10,7 @@ import { Box, Heading } from "theme-ui";
 import VisualizationModal from "../components/VisualizationModal";
 
 const Analysis = () => {
+  //ok
   const location = useLocation();
   const severityCircles = [
     {

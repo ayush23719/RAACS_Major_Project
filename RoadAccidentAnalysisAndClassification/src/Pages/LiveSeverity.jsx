@@ -3,10 +3,13 @@ import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import { Box, Heading, Button } from "theme-ui";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
+import axios from "axios";
+
 const LiveSeverity = () => {
   const navigate = useNavigate();
   const [mapCenter, setMapCenter] = useState({ lat: 51.5074, lng: -0.1278 });
-  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [startMarker, setStartMarker] = useState(null);
+  const [endMarker, setEndMarker] = useState(null);
   const [userLocation, setUserLocation] = useState(null); // State to store the user's location
 
   const [severity, setSeverity] = useState(null);
@@ -44,18 +47,99 @@ const LiveSeverity = () => {
     }
   };
 
+  // useEffect(() => {
+  //   console.log("HI before socket.on")
+  //   socket.on("severity_update", (data) => {
+  //     console.log("HI inside socket.on")
+  //     console.log("Recorded severity:", data.severity_index);
+  //     setSeverity(data.severity_index);
+  //   });
+
+  //   return () => {
+  //     socket.off("severity_update");
+  //   };
+  // }, []);
+  const calculateDistance = (lat1, lng1, lat2, lng2) => {
+    const R = 6371; // Radius of the Earth in kilometers
+    const dLat = toRadians(lat2 - lat1);
+    const dLng = toRadians(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+    return distance;
+  };
+
+  // Function to convert degrees to radians
+  const toRadians = (degrees) => {
+    return degrees * (Math.PI / 180);
+  };
+
   // Callback function when the "Start" button is clicked
   const handleStartClick = () => {
-    // You can use the userLocation here
+    // Start the simulation using the start and end markers
+    if (startMarker && endMarker) {
+      // Perform simulation logic here
+      console.log("Simulation started");
+      const simulateMovement = setInterval(async () => {
+        // Calculate the new position based on the current position and a certain distance
+        const currentPosition = {
+          lat: startMarker.lat,
+          lng: startMarker.lng,
+        };
+        const newPosition = {
+          lat: currentPosition.lat + 0.005, // Change the latitude by 0.001 (approximately 100m)
+          lng: currentPosition.lng,
+        };
+
+        // Update the start marker with the new position
+        setStartMarker(newPosition);
+
+        // Send the new position to the backend via socket.io
+        const requestData = {
+          startLat: newPosition.lat,
+          startLong: newPosition.lng,
+          Day_of_Week: 2,
+          Number_of_Vehicles: Math.floor(Math.random() * 3) + 1,
+        };
+        console.log("rD:", requestData);
+        // socket.emit("location_update", requestData);
+        const response = await axios.post("/predict", requestData);
+        const { severity_index } =
+          response.data;
+
+        setSeverity(severity_index);
+        console.log("Index:", severity_index);
+        // Check if the new position is close to the end marker
+        const distance = calculateDistance(newPosition, endMarker);
+        if (distance < 0.01) {
+          // Stop the simulation
+          clearInterval(simulateMovement);
+          console.log("Simulation completed");
+        }
+      }, 2000); // Move every 2 second (adjust this value as needed)
+    }
   };
 
   const handleMapClick = (event) => {
     const { latLng } = event;
     const newMarker = {
-      Latitude: latLng.lat(),
-      Longitude: latLng.lng(),
+      lat: latLng.lat(),
+      lng: latLng.lng(),
     };
-    setSelectedMarker(newMarker);
+
+    // Set the start marker if it's not set yet
+    if (!startMarker) {
+      setStartMarker(newMarker);
+    }
+    // Set the end marker if the start marker is already set
+    else if (startMarker && !endMarker) {
+      setEndMarker(newMarker);
+    }
   };
 
   // Get the user's location when the component mounts
@@ -69,17 +153,6 @@ const LiveSeverity = () => {
         console.error(error);
       }
     );
-  }, []);
-
-  useEffect(() => {
-    socket.on("severity_update", (data) => {
-      console.log("Recorded severity:", data.severity_index)
-      setSeverity(data.severity_index);
-    })
-
-    return () => {
-      socket.off("severity_update")
-    }
   }, []);
 
   if (loadError) return <h1>Error loading maps</h1>;
@@ -108,6 +181,7 @@ const LiveSeverity = () => {
           className="text-4xl text-white"
           sx={{ fontFamily: "rubik" }}
         >
+          {" "}
           Select a Location
         </Heading>
       </Box>
@@ -118,15 +192,18 @@ const LiveSeverity = () => {
           zoom={12}
           onClick={handleMapClick}
         >
-          {selectedMarker && (
+          {startMarker && (
             <Marker
-              position={{
-                lat: selectedMarker.Latitude,
-                lng: selectedMarker.Longitude,
-              }}
-              onClick={() => setSelectedMarker(null)}
+              position={{ lat: startMarker.lat, lng: startMarker.lng }}
+              onClick={() => setStartMarker(null)}
             />
           )}
+          {endMarker && (
+            <Marker
+              position={{ lat: endMarker.lat, lng: endMarker.lng }}
+              onClick={() => setEndMarker(null)}
+            />
+          )}{" "}
         </GoogleMap>
       </Box>
       <Box
@@ -137,18 +214,21 @@ const LiveSeverity = () => {
           zIndex: 2,
         }}
       >
+        {" "}
         <Button
           onClick={handleStartClick}
-          disabled={!selectedMarker}
+          disabled={!startMarker || !endMarker}
           className={`bg-blue-500 hover-bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover-border-blue-500 rounded ${
-            selectedMarker ? "" : "cursor-not-allowed"
+            startMarker && endMarker ? "" : "cursor-not-allowed"
           }`}
         >
-          Start
-        </Button>
-      </Box>
+          {" "}
+          Start Simulation{" "}
+        </Button>{" "}
+        <h3 color="white">{`SEVERITY: ${severity}`}</h3>
+      </Box>{" "}
     </Box>
   );
-};  
+};
 
 export default LiveSeverity;

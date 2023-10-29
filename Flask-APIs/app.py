@@ -67,14 +67,14 @@ def fetch_weather_data(latitude, longitude, api_key):
 
     }
 
-    print("Weather ID:", weather_id)
+    # print("Weather ID:", weather_id)
     if first_digit == 8:
         mapped_weather_condition = windy_or_not.get(
             weather_description, 'Unknown')
     else:
         mapped_weather_condition = default_mapping.get(first_digit, 'Unknown')
 
-    print("Weather Condition:", mapped_weather_condition)
+    # print("Weather Condition:", mapped_weather_condition)
 
     return mapped_weather_condition
 
@@ -87,27 +87,30 @@ def preprocess_data(data):
 
     start_latitude = data.get('startLat', None)
     start_longitude = data.get('startLong', None)
-    end_latitude = data.get('endLat', 0)
-    end_longitude = data.get('endLong', 0)
+    end_latitude = data.get('endLat', None)
+    end_longitude = data.get('endLong', None)
     Day_of_Week = data.get('Day_of_Week', None)
     Number_of_Vehicles = data.get('Number_of_Vehicles', None)
 
     # if start_latitude is None or start_longitude is None or end_latitude is None or end_longitude is None:
     #     return jsonify({'error': 'Invalid coordinates'}), 400
 
-    average_latitude = (start_latitude + end_latitude) / 2
-    average_longitude = (start_longitude + end_longitude) / 2
+    average_latitude = start_latitude;
+    average_longitude = start_longitude;
+    if end_latitude != None: 
+        average_latitude = (start_latitude + end_latitude) / 2
+        average_longitude = (start_longitude + end_longitude) / 2
 
-    print("Average Latitude:", average_latitude)
-    print("Average Longitude:", average_longitude)
+    # print("Average Latitude:", average_latitude)
+    # print("Average Longitude:", average_longitude)
     data_df['Latitude'] = [average_latitude]
     data_df['Longitude'] = [average_longitude]
     easting, northing = convert_lat_lng_to_osgr(
         average_latitude, average_longitude)
     data_df['Location_Easting_OSGR'] = [easting]
     data_df['Location_Northing_OSGR'] = [northing]
-    print("Easting:", easting)
-    print("Northing:", northing)
+    # print("Easting:", easting)
+    # print("Northing:", northing)
     data_df['Day_of_Week'] = [Day_of_Week]
     data_df['Number_of_Vehicles'] = [Number_of_Vehicles]
 
@@ -136,12 +139,12 @@ def preprocess_data(data):
 def predict():
 
     data = request.get_json()
-    print("Received Data:", data)
+    # print("Received Data:", data)
 
     data_df = preprocess_data(data)
-    print("Processed DataFrame:")
+    # print("Processed DataFrame:")
 
-    print(data_df.to_string(index=False, line_width=1000).replace(",", ",\n"))
+    # print(data_df.to_string(index=False, line_width=1000).replace(",", ",\n"))
 
     prediction = model.predict(data_df[["Location_Easting_OSGR", "Location_Northing_OSGR", "Longitude", "Latitude", "Day_of_Week",
                                "Speed_limit", "2nd_Road_Class", "Number_of_Vehicles", "Light_Conditions", "Weather_Conditions", "Road_Surface_Conditions", "Year"]])
@@ -156,17 +159,11 @@ def predict():
 #Websocket handler
 @socket.on('location_update')
 def handle_location_update(data):
-    # start_latitude = data['startLat']
-    # start_longitude = data['startLong']
-    # end_latitude = data['endLat']
-    # end_longitude = data['endLong']
-    # Day_of_Week = data['Day_of_Week']
-    # Number_of_Vehicles = data['Number_of_Vehicles']
     data_df = preprocess_data(data);
 
     prediction = model.predict(data_df[["Location_Easting_OSGR", "Location_Northing_OSGR", "Longitude", "Latitude", "Day_of_Week",
                                "Speed_limit", "2nd_Road_Class", "Number_of_Vehicles", "Light_Conditions", "Weather_Conditions", "Road_Surface_Conditions", "Year"]])
-    
+    print("+++++++++PREDICTION: ", prediction.tolist())
     emit("severity_update", {"severity_index": prediction.tolist()});
 
 

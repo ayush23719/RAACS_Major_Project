@@ -41,7 +41,7 @@ const WelcomePage = () => {
           <Typography variant="h2" className="text-4xl font-bold">
             RoadWise
           </Typography>
-          <Typography variant="paragraph" className="mt-0 text-lg">
+          <Typography variant="paragraph" className="mt-2 text-lg">
             Road Accident Analysis and Classification System
           </Typography>
           <Typography variant="paragraph" className="mt-4 text-lg">

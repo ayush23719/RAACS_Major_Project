@@ -10,7 +10,6 @@ import { Box, Heading } from "theme-ui";
 import VisualizationModal from "../components/VisualizationModal";
 
 const Analysis = () => {
-  //ok
   const location = useLocation();
   const severityCircles = [
     {
@@ -121,6 +120,8 @@ const Analysis = () => {
           />
         </GoogleMap>
         <VisualizationModal
+          speedLimit={40}
+          severityIndex={prediction}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           circle={selectedCircle}

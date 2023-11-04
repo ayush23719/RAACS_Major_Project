@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  Marker,
+  DirectionsService,
+  DirectionsRenderer,
+  useLoadScript,
+} from "@react-google-maps/api";
 import { Box, Heading, Button } from "theme-ui";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
@@ -12,15 +18,29 @@ const LiveSeverity = () => {
   const [endMarker, setEndMarker] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [severity, setSeverity] = useState(null);
-  const [showNotification, setShowNotification] = useState(false); // State to control the notification banner
+  const [showNotification, setShowNotification] = useState(false);
   const [simulating, setSimulating] = useState(false);
+  const [startIsClicked, setstartIsClicked] = useState(false);
+  const [directions, setDirections] = useState(null);
+  const [simulationTimeout, setSimulationTimeout] = useState(null);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_REACT_APP_GOOGLE_API_KEY,
   });
 
-  const socket = io("http://localhost:5000");
+  // const socket = io("http://localhost:5000");
 
+  useEffect(() => {
+    if (startIsClicked) setShowNotification(true);
+  }, [startIsClicked]);
+
+  const handleDirectionsResponse = (result) => {
+    if (result.status === "OK") {
+      setDirections(result);
+    } else {
+      console.error(`Error with directions: ${result.status}`);
+    }
+  };
   // Function to get the user's location
   const getUserLocation = (successCallback, errorCallback) => {
     if (navigator.geolocation) {
@@ -37,7 +57,7 @@ const LiveSeverity = () => {
             Day_of_Week: 2,
             Number_of_Vehicles: 2,
           };
-          socket.emit("location_update", requestData);
+          // socket.emit("location_update", requestData);
         },
         (error) => {
           errorCallback(error);
@@ -48,39 +68,83 @@ const LiveSeverity = () => {
       errorCallback("Geolocation is not supported by your browser.");
     }
   };
+  // Function to calculate the distance between two sets of coordinates
+  const calculateDistance = (lat1, lng1, lat2, lng2) => {
+    const R = 6371;
+    const dLat = toRadians(lat2 - lat1);
+    const dLng = toRadians(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+    return distance;
+  };
 
-  // Function to simulate movement
+  const toRadians = (degrees) => {
+    return degrees * (Math.PI / 180);
+  };
+
   const simulateMovement = async () => {
-    const response = await axios.post("/predict", {
-      startLat: startMarker.lat,
-      startLong: startMarker.lng,
-      Day_of_Week: 2,
-      Number_of_Vehicles: Math.floor(Math.random() * 3) + 1,
-    });
-    const { severity_index } = response.data;
-    setSeverity(severity_index);
-    setShowNotification(true);
+    const sendRequest = async () => {
+      const response = await axios.post("/predict", {
+        startLat: startMarker.lat,
+        startLong: startMarker.lng,
+        Day_of_Week: 2,
+        Number_of_Vehicles: Math.floor(Math.random() * 3) + 1,
+      });
+      const { severity_index } = response.data;
+      setSeverity(severity_index);
 
-    // Add logic to check if simulation should continue or end
-    const distance = calculateDistance(
-      startMarker.lat,
-      startMarker.lng,
-      endMarker.lat,
-      endMarker.lng
-    );
-    if (distance >= 0.01) {
-      setTimeout(simulateMovement, 2000);
-    } else {
-      setSimulating(false);
-    }
+      // Add logic to check if simulation should continue or end
+      const distance = calculateDistance(
+        startMarker.lat,
+        startMarker.lng,
+        endMarker.lat,
+        endMarker.lng
+      );
+      console.log("Distance:", distance);
+      setStartMarker();
+      if (distance >= 0.01) {
+        setTimeout(simulateMovement, 3000); // Send the next request after 3 seconds
+      } else {
+        setSimulating(false);
+      }
+    };
+
+    // Initial request
+    sendRequest();
   };
 
   const handleStartClick = () => {
+    setstartIsClicked(true);
     if (startMarker && endMarker) {
       // Start the simulation
       setSimulating(true);
+      setDirections(null); // Clear previous directions
+      const directionsService = new window.google.maps.DirectionsService();
+
+      directionsService.route(
+        {
+          origin: startMarker,
+          destination: endMarker,
+          travelMode: window.google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === "OK") {
+            setDirections(result);
+          } else {
+            console.error(`Error with directions: ${status}`);
+          }
+        }
+      );
       setShowNotification(true);
-      simulateMovement();
+      const timeoutId = simulateMovement();
+      // Save the simulation timeout ID
+      setSimulationTimeout(timeoutId);
     }
   };
 
@@ -88,6 +152,9 @@ const LiveSeverity = () => {
     // End the simulation
     setSimulating(false);
     setShowNotification(false);
+    setDirections(null);
+    // Ensure the simulation stops immediately
+    clearTimeout(simulationTimeout); // Clear the timeout
   };
 
   const handleMapClick = (event) => {
@@ -165,6 +232,7 @@ const LiveSeverity = () => {
               onClick={() => setEndMarker(null)}
             />
           )}
+          {directions && <DirectionsRenderer directions={directions} />}
         </GoogleMap>
       </Box>
       {showNotification && (

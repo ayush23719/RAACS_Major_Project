@@ -31,7 +31,10 @@ export default function CustomNavbar() {
       </Typography>
 
       <Typography as="li" variant="h2" className="p-1 font-normal text-lg">
-        <Link to="#" className="flex items-center">
+        <Link
+          to="https://1drv.ms/b/s!AuUEa7It0N2cpzgEUna2NDHNYJcI?e=feO1zP"
+          className="flex items-center"
+        >
           Docs
         </Link>
       </Typography>

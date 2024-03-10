@@ -29,6 +29,11 @@ export default function CustomNavbar() {
           Live Severity
         </Link>
       </Typography>
+      <Typography as="li" variant="h2" className="p-1 font-normal text-lg">
+        <Link to="/live-simulation" className="flex items-center">
+          Live Simulation
+        </Link>
+      </Typography>
 
       <Typography as="li" variant="h2" className="p-1 font-normal text-lg">
         <Link

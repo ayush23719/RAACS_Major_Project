@@ -7,6 +7,7 @@ import MapPage from "./Pages/MapPage";
 import WelcomePage from "./Pages/WelcomePage";
 import Analysis from "./Pages/Analysis";
 import LiveSeverity from "./Pages/LiveSeverity";
+import LiveCheck from "./Pages/LiveCheck";
 function App() {
   return (
     <BrowserRouter>
@@ -19,6 +20,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/analysis" element={<Analysis />} />
         <Route path="/live" element={<LiveSeverity />} />
+        <Route path="/live-simulation" element={<LiveCheck />} />
       </Routes>
     </BrowserRouter>
   );

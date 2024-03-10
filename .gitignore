@@ -3,3 +3,4 @@ Notebook/model.joblib
 Dataset/test.csv
 node_modules
 .ipynb_checkpoints
+.venv
